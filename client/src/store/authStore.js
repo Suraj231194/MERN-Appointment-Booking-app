@@ -17,11 +17,6 @@ export const useAuthStore = create((set) => ({
     },
 
     register: async (name, email, password, role, additionalData = {}) => {
-        // Updated register signature to match Component calls (name, email, pass, role, extras)
-        // OR fix the component to pass object.
-        // Let's check Register.jsx step 242: 
-        // await register(name, email, password, role, role === 'doctor' ? { specialty, experience } : {});
-        // So I need to update register action signature too!
         try {
             const res = await axios.post('/auth/register', { name, email, password, role, ...additionalData });
             set({ user: res.data.user, isAuthenticated: true });
@@ -34,9 +29,11 @@ export const useAuthStore = create((set) => ({
     logout: async () => {
         try {
             await axios.get('/auth/logout');
-            set({ user: null, isAuthenticated: false });
         } catch (error) {
-            console.error(error);
+            console.error('Logout error:', error);
+        } finally {
+            // Always clear state, even if server call fails
+            set({ user: null, isAuthenticated: false });
         }
     },
 

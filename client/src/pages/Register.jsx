@@ -32,44 +32,44 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+        <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gray-50 dark:bg-gray-900 transition-colors">
+            <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
                 <div>
-                    <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">
+                    <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
                         Create your account
                     </h2>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
                             <input
                                 type="text" required
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-white"
                                 value={name} onChange={(e) => setName(e.target.value)}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Email address</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
                             <input
                                 type="email" required
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-white"
                                 value={email} onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Password</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                             <input
                                 type="password" required
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-white"
                                 value={password} onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">I am a...</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">I am a...</label>
                             <select
                                 value={role} onChange={(e) => setRole(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-white"
                             >
                                 <option value="patient">Patient</option>
                                 <option value="doctor">Doctor</option>
@@ -79,19 +79,19 @@ const Register = () => {
                         {role === 'doctor' && (
                             <>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Specialty</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Specialty</label>
                                     <input
                                         type="text" required
                                         placeholder="e.g. Cardiology"
-                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-white"
                                         value={specialty} onChange={(e) => setSpecialty(e.target.value)}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Experience (Years)</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Experience (Years)</label>
                                     <input
                                         type="number" required
-                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-white"
                                         value={experience} onChange={(e) => setExperience(e.target.value)}
                                     />
                                 </div>
@@ -103,7 +103,7 @@ const Register = () => {
                         <button
                             type="submit"
                             disabled={isRegistering}
-                            className={`w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${isRegistering ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-colors`}
+                            className={`w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white ${isRegistering ? 'bg-teal-400' : 'bg-teal-600 hover:bg-teal-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 shadow-sm transition-colors`}
                         >
                             {isRegistering ? 'Creating Account...' : 'Sign Up'}
                         </button>
@@ -111,7 +111,7 @@ const Register = () => {
 
                     <div className="flex items-center justify-center">
                         <div className="text-sm">
-                            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                            <Link to="/login" className="font-medium text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300">
                                 Already have an account? Sign in
                             </Link>
                         </div>

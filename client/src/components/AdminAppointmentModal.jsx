@@ -61,31 +61,31 @@ const AdminAppointmentModal = ({ isOpen, onClose, appointment, onUpdate }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fade-in">
-                <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50 top-0 sticky z-10">
-                    <h3 className="text-xl font-bold text-gray-800">Edit Appointment</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 top-0 sticky z-10">
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white">Edit Appointment</h3>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <X size={24} />
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     {/* Info Card */}
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 space-y-2">
+                    <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-800 rounded-lg p-4 space-y-2">
                         <div className="flex justify-between">
-                            <span className="text-xs font-semibold text-blue-600 uppercase">Patient</span>
-                            <span className="text-xs font-semibold text-blue-600 uppercase">Doctor</span>
+                            <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase">Patient</span>
+                            <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase">Doctor</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <p className="font-bold text-gray-800">{appointment.patientId?.name || 'Unknown'}</p>
-                            <p className="font-bold text-gray-800">Dr. {appointment.doctorId?.user?.name || 'Unknown'}</p>
+                            <p className="font-bold text-gray-800 dark:text-white">{appointment.patientId?.name || 'Unknown'}</p>
+                            <p className="font-bold text-gray-800 dark:text-white">Dr. {appointment.doctorId?.user?.name || 'Unknown'}</p>
                         </div>
-                        <div className="pt-2 border-t border-blue-100 flex justify-between">
-                            <span className="text-sm text-blue-800">
+                        <div className="pt-2 border-t border-teal-100 dark:border-teal-800 flex justify-between">
+                            <span className="text-sm text-teal-800 dark:text-teal-300">
                                 {format(new Date(appointment.slotId.startTime), 'PPP')}
                             </span>
-                            <span className="text-sm text-blue-800 font-mono">
+                            <span className="text-sm text-teal-800 dark:text-teal-300 font-mono">
                                 {format(new Date(appointment.slotId.startTime), 'HH:mm')}
                             </span>
                         </div>
@@ -93,11 +93,11 @@ const AdminAppointmentModal = ({ isOpen, onClose, appointment, onUpdate }) => {
 
                     {/* Status Select */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
                         <select
                             value={status}
                             onChange={(e) => setStatus(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
                         >
                             <option value="PENDING">PENDING</option>
                             <option value="CONFIRMED">CONFIRMED</option>
@@ -113,35 +113,35 @@ const AdminAppointmentModal = ({ isOpen, onClose, appointment, onUpdate }) => {
                     </div>
 
                     {/* Reschedule Section */}
-                    <div className="border-t border-gray-100 pt-4">
+                    <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
                         <div className="flex items-center justify-between mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Reschedule Time?</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Reschedule Time?</label>
                             <button
                                 type="button"
                                 onClick={() => setIsRescheduling(!isRescheduling)}
-                                className={`text-sm font-medium ${isRescheduling ? 'text-red-500' : 'text-blue-600'}`}
+                                className={`text-sm font-medium ${isRescheduling ? 'text-red-500' : 'text-teal-600 dark:text-teal-400'}`}
                             >
                                 {isRescheduling ? 'Cancel Reschedule' : 'Change Time'}
                             </button>
                         </div>
 
                         {isRescheduling && (
-                            <div className="bg-gray-50 p-4 rounded-lg space-y-4 animate-fade-in">
+                            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-4 animate-fade-in">
                                 <div>
-                                    <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Step 1: Pick Date</label>
+                                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1 block">Step 1: Pick Date</label>
                                     <input
                                         type="date"
                                         value={selectedDate}
                                         onChange={(e) => setSelectedDate(e.target.value)}
                                         min={new Date().toISOString().split('T')[0]}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-white"
                                     />
                                 </div>
                                 {selectedDate && (
                                     <div>
-                                        <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Step 2: Pick New Slot</label>
+                                        <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1 block">Step 2: Pick New Slot</label>
                                         {loadingSlots ? (
-                                            <p className="text-sm text-gray-500">Loading slots...</p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">Loading slots...</p>
                                         ) : availableSlots.length > 0 ? (
                                             <div className="grid grid-cols-2 gap-2">
                                                 {availableSlots.map(slot => (
@@ -150,8 +150,8 @@ const AdminAppointmentModal = ({ isOpen, onClose, appointment, onUpdate }) => {
                                                         type="button"
                                                         onClick={() => setNewSlotId(slot._id)}
                                                         className={`px-3 py-2 text-sm rounded-lg border transition-all ${newSlotId === slot._id
-                                                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                                                : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300'
+                                                            ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
+                                                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-teal-300 dark:hover:border-teal-500'
                                                             }`}
                                                     >
                                                         {format(new Date(slot.startTime), 'HH:mm')}
@@ -169,12 +169,12 @@ const AdminAppointmentModal = ({ isOpen, onClose, appointment, onUpdate }) => {
 
                     {/* Notes Input */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Notes & Contact Info</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes & Contact Info</label>
                         <textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             rows={3}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition-all resize-none bg-white dark:bg-gray-700 dark:text-white"
                             placeholder="Add internal notes or update contact number..."
                         />
                     </div>
@@ -184,14 +184,14 @@ const AdminAppointmentModal = ({ isOpen, onClose, appointment, onUpdate }) => {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading || (isRescheduling && !newSlotId)}
-                            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             <Save size={18} className="mr-2" />
                             {loading ? 'Saving...' : 'Save Changes'}

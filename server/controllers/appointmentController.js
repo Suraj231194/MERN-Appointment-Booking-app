@@ -82,14 +82,19 @@ exports.getSlots = async (req, res, next) => {
     }
 };
 
-// @desc    Book Appointment (ATOMIC - Standalone Safe)
+// @desc    Book Appointment (TRANSACTIONAL)
 exports.bookAppointment = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { slotId, notes } = req.body;
         const patientId = req.user.id;
 
-        const slotCheck = await Slot.findById(slotId);
+        const slotCheck = await Slot.findById(slotId).session(session);
         if (!slotCheck) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ message: 'Slot not found' });
         }
 
@@ -103,41 +108,42 @@ exports.bookAppointment = async (req, res, next) => {
             doctorId: slotCheck.doctorId,
             createdAt: { $gte: startOfDay, $lte: endOfDay },
             status: { $ne: 'CANCELLED' }
-        });
+        }).session(session);
 
         if (existingAppt) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: 'You already have an appointment with this doctor on this date.' });
         }
 
-        // Atomic Update
-        const slot = await Slot.findOneAndUpdate(
-            { _id: slotId, status: 'AVAILABLE' },
-            { status: 'BOOKED' },
-            { new: true }
-        );
-
-        if (!slot) {
+        // Check if slot is available (Double check inside transaction)
+        if (slotCheck.status !== 'AVAILABLE') {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ success: false, message: 'Slot is already booked or unavailable' });
         }
 
-        // Create Appointment with Revert logic
-        let appointment;
-        try {
-            appointment = await Appointment.create({
-                patientId,
-                doctorId: slot.doctorId,
-                slotId,
-                status: 'CONFIRMED',
-                notes
-            });
-        } catch (createError) {
-            await Slot.findByIdAndUpdate(slotId, { status: 'AVAILABLE' });
-            throw createError;
-        }
+        // Lock Slot
+        slotCheck.status = 'BOOKED';
+        await slotCheck.save({ session });
 
-        res.status(200).json({ success: true, data: appointment });
+        // Create Appointment
+        const appointment = await Appointment.create([{
+            patientId,
+            doctorId: slotCheck.doctorId,
+            slotId,
+            status: 'CONFIRMED',
+            notes
+        }], { session });
+
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(200).json({ success: true, data: appointment[0] });
 
     } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
         next(err);
     }
 };
@@ -153,10 +159,37 @@ exports.getMyAppointments = async (req, res, next) => {
             query.doctorId = doctor._id;
         }
 
+        // Check for 'scope' query param
+        if (req.query.scope === 'upcoming') {
+            const today = new Date();
+            const futureDate = new Date();
+            futureDate.setDate(today.getDate() + 10); // Next 10 days
+
+            // Filter logic: Find appointments where the slot's startTime is within range
+            // Since startTime is in the referenced 'Slot' model, we strictly need to filter AFTER population or better, use aggregate.
+            // However, a simpler way for this codebase's scale:
+            // Fetch strict future appointments if 'slotId' wasn't separate.
+            // BUT: Slot is separate. So we need to query based on Slot time.
+
+            // Optimization: Find candidate slots first
+            const matchingSlots = await Slot.find({
+                startTime: { $gte: today, $lte: futureDate }
+            }).select('_id');
+
+            const slotIds = matchingSlots.map(s => s._id);
+            query.slotId = { $in: slotIds };
+        }
+
         const appointments = await Appointment.find(query)
             .populate('slotId')
             .populate({ path: 'doctorId', populate: { path: 'user', select: 'name' } })
-            .populate('patientId', 'name email');
+            .populate('patientId', 'name email')
+            .sort({ createdAt: -1 });
+
+        // If upcoming, re-sort by actual slot startTime (ascending) instead of creation date
+        if (req.query.scope === 'upcoming') {
+            appointments.sort((a, b) => new Date(a.slotId.startTime) - new Date(b.slotId.startTime));
+        }
 
         res.status(200).json({ success: true, count: appointments.length, data: appointments });
     } catch (err) {
@@ -232,7 +265,8 @@ exports.getAllAppointments = async (req, res, next) => {
         const appointments = await Appointment.find({})
             .populate('slotId')
             .populate({ path: 'doctorId', populate: { path: 'user', select: 'name' } })
-            .populate('patientId', 'name email');
+            .populate('patientId', 'name email')
+            .sort({ createdAt: -1 });
 
         res.status(200).json({ success: true, count: appointments.length, data: appointments });
     } catch (err) {
