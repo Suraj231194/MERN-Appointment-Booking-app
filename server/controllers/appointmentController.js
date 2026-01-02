@@ -244,17 +244,45 @@ exports.getAllAppointments = async (req, res, next) => {
 exports.adminUpdateAppointment = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { status, notes } = req.body;
+        const { status, notes, newSlotId } = req.body;
 
         const appointment = await Appointment.findById(id).populate('slotId');
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment not found' });
         }
 
+        // Handle Rescheduling
+        if (newSlotId && newSlotId !== appointment.slotId._id.toString()) {
+            // 1. Verify New Slot
+            const newSlot = await Slot.findOne({ _id: newSlotId, status: 'AVAILABLE' });
+            if (!newSlot) {
+                return res.status(400).json({ message: 'Selected slot is not available' });
+            }
+
+            // 2. Book New Slot
+            newSlot.status = 'BOOKED';
+            await newSlot.save();
+
+            // 3. Free Old Slot
+            if (appointment.slotId) {
+                const oldSlotId = appointment.slotId._id || appointment.slotId;
+                await Slot.findByIdAndUpdate(oldSlotId, { status: 'AVAILABLE' });
+            }
+
+            // 4. Update Appointment
+            appointment.slotId = newSlotId;
+            // Ensure status is CONFIRMED if it was something else, unless specifically setting to other
+            if (!status) appointment.status = 'CONFIRMED';
+        }
+
         if (status === 'CANCELLED' && appointment.status !== 'CANCELLED') {
             if (appointment.slotId) {
-                const slotId = appointment.slotId._id || appointment.slotId;
-                await Slot.findByIdAndUpdate(slotId, { status: 'AVAILABLE' });
+                // Determine slot ID safely whether we just rescheduled or not (though if rescheduled, old is already freed)
+                // If we rescheduled, appointment.slotId is now newSlotId (which is an ID string, not object yet unless refreshed, but we assigned ID above)
+                // However, Mongoose document assignment: appointment.slotId = newSlotId.
+                // If we cancel immediately after reschedule (unlikely but possible request), we need to free the CURRENT slot.
+                const currentSlotId = appointment.slotId._id || appointment.slotId;
+                await Slot.findByIdAndUpdate(currentSlotId, { status: 'AVAILABLE' });
             }
         }
 
