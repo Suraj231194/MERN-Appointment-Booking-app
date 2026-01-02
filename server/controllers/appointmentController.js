@@ -225,3 +225,73 @@ exports.cancelAppointment = async (req, res, next) => {
         next(err);
     }
 };
+
+// @desc    Get All Appointments (Admin)
+exports.getAllAppointments = async (req, res, next) => {
+    try {
+        const appointments = await Appointment.find({})
+            .populate('slotId')
+            .populate({ path: 'doctorId', populate: { path: 'user', select: 'name' } })
+            .populate('patientId', 'name email');
+
+        res.status(200).json({ success: true, count: appointments.length, data: appointments });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc    Update Appointment (Admin)
+exports.adminUpdateAppointment = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { status, notes } = req.body;
+
+        const appointment = await Appointment.findById(id).populate('slotId');
+        if (!appointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+
+        if (status === 'CANCELLED' && appointment.status !== 'CANCELLED') {
+            if (appointment.slotId) {
+                const slotId = appointment.slotId._id || appointment.slotId;
+                await Slot.findByIdAndUpdate(slotId, { status: 'AVAILABLE' });
+            }
+        }
+
+        if (status) appointment.status = status;
+        if (notes) appointment.notes = notes;
+
+        await appointment.save();
+
+        res.status(200).json({ success: true, data: appointment });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc    Create Appointment (Admin)
+exports.adminCreateAppointment = async (req, res, next) => {
+    try {
+        const { doctorId, slotId, patientId, notes } = req.body;
+
+        const slot = await Slot.findById(slotId);
+        if (!slot) return res.status(404).json({ message: 'Slot not found' });
+        if (slot.status !== 'AVAILABLE') return res.status(400).json({ message: 'Slot is not available' });
+
+        slot.status = 'BOOKED';
+        await slot.save();
+
+        const appointment = await Appointment.create({
+            patientId,
+            doctorId,
+            slotId,
+            status: 'CONFIRMED',
+            notes
+        });
+
+        res.status(201).json({ success: true, data: appointment });
+
+    } catch (err) {
+        next(err);
+    }
+};

@@ -19,19 +19,16 @@ function App() {
     <>
       <Toaster position="top-right" />
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
         {/* Protected Routes */}
-        <Route path="/dashboard" element={
+        <Route path="/dashboard/*" element={
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>
-        }>
-          <Route index element={<DashboardHome />} />
-        </Route>
-
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        } />
       </Routes>
     </>
   );
