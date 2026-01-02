@@ -7,12 +7,11 @@ import Dashboard from './pages/Dashboard';
 import PatientDashboard from './pages/dashboard/PatientDashboard';
 import DoctorDashboard from './pages/dashboard/DoctorDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
+import LandingPage from './pages/LandingPage';
+import DashboardHome from './pages/dashboard/DashboardHome';
 
-const DashboardHome = () => {
-  const { user } = useAuthStore();
-  if (!user) return null;
-  return user.role === 'doctor' ? <DoctorDashboard /> : <PatientDashboard />;
-};
+// DashboardHome imported
 
 function App() {
   return (
