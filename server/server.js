@@ -11,9 +11,21 @@ const errorHandler = require('./middlewares/error');
 dotenv.config();
 
 // Connect to database
-connectDB();
+// Connect to database (Lazy connection for Vercel)
+// connectDB(); // Removed immediate call
 
 const app = express();
+
+// Database Connection Middleware
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error('Database connection failed:', error);
+        res.status(500).json({ error: 'Database connection failed' });
+    }
+});
 
 // Security & Utility Middleware
 app.use(helmet());
